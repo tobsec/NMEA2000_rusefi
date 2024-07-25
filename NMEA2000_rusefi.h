@@ -1,10 +1,10 @@
 /*
-NMEA2000_mbed.h
+NMEA2000_rusefi.h
 
 2017 Copyright (c) Al Thomason   All rights reserved
 
-Support the MBED targeted CPUs  (STM32F072, etc)
-See: https://github.com/thomasonw/NMEA2000_mbed
+Support the RUSEFI targeted CPUs
+See: https://github.com/tobsec/NMEA2000_rusefi
      https://github.com/ttlappalainen/NMEA2000
 
 
@@ -30,18 +30,17 @@ See also NMEA2000 library.
 */
 
 
-#ifndef _NMEA2000_MBED_H_
-#define _NMEA2000_MBED_H_
+#ifndef _NMEA2000_RUSEFI_H_
+#define _NMEA2000_RUSEFI_H_
 
 #include <NMEA2000.h>
 #include <N2kMsg.h>
-#include "mbed.h"
 
 
-void     delay(uint32_t ms);
+// void     delay(uint32_t ms);
 uint32_t millis(void);
 
-class tNMEA2000_mbed : public tNMEA2000
+class tNMEA2000_esp32 : public tNMEA2000 // Don't rename 'esp32' yet to avoid changes in NMEA2000 Lib
 {
 protected:
     virtual bool CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent);
@@ -49,20 +48,9 @@ protected:
     virtual bool CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf);
 
 public:
-    tNMEA2000_mbed();
+    tNMEA2000_esp32(); // Don't rename 'esp32' yet to avoid changes in NMEA2000 Lib
 
 };
-
-
-
-//class Serial : public N2kStream {
-  class tmbedStream : public N2kStream {
-public:
-   virtual int read();
-   virtual size_t write(const uint8_t* data, size_t size);
-};
-
-
 
 
 #endif
