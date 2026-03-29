@@ -36,20 +36,20 @@ See also NMEA2000 library.
 #include "can_msg_tx.h"
 
 //*****************************************************************************
-tNMEA2000_esp32::tNMEA2000_esp32() : tNMEA2000()
+tNMEA2000_rusefi::tNMEA2000_rusefi() : tNMEA2000()
 {
-    efiPrintf("* tNMEA2000_esp32 initialized");
+    efiPrintf("* tNMEA2000_rusefi initialized");
 }
 
 //*****************************************************************************
-bool tNMEA2000_esp32::CANOpen()
+bool tNMEA2000_rusefi::CANOpen()
 {
-    efiPrintf("* tNMEA2000_esp32::CANOpen()");
+    efiPrintf("* tNMEA2000_rusefi::CANOpen()");
     return true;
 }
 
 //*****************************************************************************
-bool tNMEA2000_esp32::CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent)
+bool tNMEA2000_rusefi::CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent)
 {
     CanTxMessage msg(CanCategory::NBC, id, len, true);
     msg.busIndex = 1;
@@ -63,7 +63,7 @@ bool tNMEA2000_esp32::CANSendFrame(unsigned long id, unsigned char len, const un
 }
 
 //*****************************************************************************
-bool tNMEA2000_esp32::CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf)
+bool tNMEA2000_rusefi::CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf)
 {
     // TODO: receive not yet implemented
     return false;

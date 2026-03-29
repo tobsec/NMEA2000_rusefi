@@ -36,11 +36,9 @@ See also NMEA2000 library.
 #include <NMEA2000.h>
 #include <N2kMsg.h>
 
-
-// void     delay(uint32_t ms);
 uint32_t millis(void);
 
-class tNMEA2000_esp32 : public tNMEA2000 // Don't rename 'esp32' yet to avoid changes in NMEA2000 Lib
+class tNMEA2000_rusefi : public tNMEA2000
 {
 protected:
     virtual bool CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent);
@@ -48,9 +46,7 @@ protected:
     virtual bool CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf);
 
 public:
-    tNMEA2000_esp32(); // Don't rename 'esp32' yet to avoid changes in NMEA2000 Lib
-
+    tNMEA2000_rusefi();
 };
-
 
 #endif
