@@ -38,6 +38,9 @@ See also NMEA2000 library.
 
 uint32_t millis(void);
 
+/* Call from processCanRxMessage() for extended frames on NMEA2000 bus */
+void nmea2000EnqueueRxFrame(unsigned long id, unsigned char len, const unsigned char *data);
+
 class tNMEA2000_rusefi : public tNMEA2000
 {
 protected:

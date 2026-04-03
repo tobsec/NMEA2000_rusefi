@@ -62,11 +62,49 @@ bool tNMEA2000_rusefi::CANSendFrame(unsigned long id, unsigned char len, const u
     return true;
 }
 
+/*
+ * Simple ring buffer for CAN RX frames.
+ * Written by the CAN RX thread (processCanRxMessage), read by the CAN dash
+ * thread (ParseMessages -> CANGetFrame). Single producer, single consumer.
+ */
+struct N2kRxFrame {
+    unsigned long id;
+    unsigned char len;
+    unsigned char data[8];
+};
+
+#define N2K_RX_BUFFER_SIZE 16
+static N2kRxFrame n2kRxBuffer[N2K_RX_BUFFER_SIZE];
+static volatile uint8_t n2kRxHead = 0;
+static volatile uint8_t n2kRxTail = 0;
+
+void nmea2000EnqueueRxFrame(unsigned long id, unsigned char len, const unsigned char *data)
+{
+    uint8_t nextHead = (n2kRxHead + 1) % N2K_RX_BUFFER_SIZE;
+    if (nextHead == n2kRxTail) {
+        return; /* buffer full, drop frame */
+    }
+    n2kRxBuffer[n2kRxHead].id = id;
+    n2kRxBuffer[n2kRxHead].len = (len > 8) ? 8 : len;
+    for (uint8_t i = 0; i < n2kRxBuffer[n2kRxHead].len; i++) {
+        n2kRxBuffer[n2kRxHead].data[i] = data[i];
+    }
+    n2kRxHead = nextHead;
+}
+
 //*****************************************************************************
 bool tNMEA2000_rusefi::CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf)
 {
-    // TODO: receive not yet implemented
-    return false;
+    if (n2kRxTail == n2kRxHead) {
+        return false; /* empty */
+    }
+    id = n2kRxBuffer[n2kRxTail].id;
+    len = n2kRxBuffer[n2kRxTail].len;
+    for (uint8_t i = 0; i < len; i++) {
+        buf[i] = n2kRxBuffer[n2kRxTail].data[i];
+    }
+    n2kRxTail = (n2kRxTail + 1) % N2K_RX_BUFFER_SIZE;
+    return true;
 }
 
 /********************************************************************
@@ -101,11 +139,12 @@ bool nmea2000HeapActive = false;
 class NMEA2kHeap {
 public:
 	void* alloc(size_t n) {
-		if ((m_pos + n) <= m_size)
+		/* Align to 8 bytes — required for strd/ldrd on Cortex-M4 */
+		unsigned int aligned_pos = (m_pos + 7u) & ~7u;
+		if ((aligned_pos + n) <= m_size)
 		{
-			unsigned int old_pos = m_pos;
-			m_pos += n;
-			return &m_buffer[old_pos];
+			m_pos = aligned_pos + n;
+			return &m_buffer[aligned_pos];
 		}
 		else
 		{
