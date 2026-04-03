@@ -130,7 +130,7 @@ uint32_t millis(void)
  * new outside of init will trigger an assert.
  */
 
-#define NMEA2000_USER_HEAP 8192
+#define NMEA2000_USER_HEAP 4096
 
 static char nmea2000UserHeap[NMEA2000_USER_HEAP];
 
